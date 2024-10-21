@@ -1,0 +1,2 @@
+interval_seconds: 60
+last_n_messages: 10
