@@ -1,0 +1,10 @@
+openpyxl
+telethon==1.36.0
+aiosqlite
+pandas==2.1.4
+omegaconf==2.3.0
+sqlalchemy==2.0.36
+python-dotenv
+fastapi
+uvicorn
+python-jose

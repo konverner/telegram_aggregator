@@ -6,7 +6,7 @@ from dotenv import find_dotenv, load_dotenv
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
-from .models import Base
+from ..models import Base
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -43,9 +43,13 @@ AsyncSessionLocal = sessionmaker(
     expire_on_commit=False
 )
 
-def get_session():
+async def get_session():
     """Provide a transactional scope around a series of operations."""
-    return AsyncSessionLocal
+    async_session = AsyncSessionLocal()
+    try:
+        yield async_session
+    finally:
+        await async_session.close()
 
 async def create_tables():
     """Create database tables based on the metadata."""

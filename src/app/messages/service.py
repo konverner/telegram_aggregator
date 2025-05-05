@@ -1,18 +1,15 @@
 import asyncio
 import logging
 from datetime import timezone
-
-from omegaconf import OmegaConf
-from telegram_aggregator.db.crud import add_message
 from telethon.tl.functions.messages import GetHistoryRequest
 from telethon.tl.types import PeerChannel
 
-# Load configuration
-config = OmegaConf.load("./src/telegram_aggregator/conf/config.yaml")
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# --- Existing Message Fetching Functions ---
 
 async def fetch_last_n_messages(user_client, channel_name, n_messages: int = 10):
     """
@@ -24,7 +21,7 @@ async def fetch_last_n_messages(user_client, channel_name, n_messages: int = 10)
         n_messages: Number of messages to fetch.
 
     Returns:
-        A list of message data dictionaries.
+        A list of message data dictionaries conforming to the Message schema.
     """
     logger.info(f"Fetching messages from channel: {channel_name}")
     try:
@@ -51,21 +48,27 @@ async def fetch_last_n_messages(user_client, channel_name, n_messages: int = 10)
     messages = result.messages
     data = []
     for message in messages:
+        print(message)
+        # Ensure message text is not None before processing
+        message_text = message.message if message.message else ""
+        await user_client.download_media(message.media)
         message_data = {
-            "message_id": message.id,
-            "message_datetime": message.date.astimezone(timezone.utc),
-            "content": message.message,
-            "channel_name": channel_name
+            "id": message.id,  # Changed from message_id
+            "datetime": message.date.astimezone(timezone.utc),  # Changed from message_datetime
+            "text": message_text,  # Use message_text
+            "channel_name": channel_name,
+            # Add placeholders for other fields if needed, or handle optional fields
+            "photo": None,  # Assuming no photo handling for now
+            "caption": None  # Assuming no caption handling for now
         }
-        logger.info(f"Adding message to the database: {message.id}")
-        data.extend([message_data])
-        await add_message(**message_data)
+        data.append(message_data)  # Changed from extend([message_data])
+        # Removed add_message call
     return data
 
-async def fetch_messages(channels: list[str], user_client):
+async def fetch_messages(channels: list[str], user_client, n_messages: int = 10):
     tasks = [
         asyncio.create_task(
-            fetch_last_n_messages(user_client, channel, config.last_n_messages),
+            fetch_last_n_messages(user_client, channel, n_messages),
             name=f"fetch from {channel}"
         )
         for channel in channels

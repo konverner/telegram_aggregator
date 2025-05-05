@@ -6,8 +6,8 @@ from sqlalchemy import and_, select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.future import select
 
-from .database import get_session
-from .models import Channel, Message
+from .core import get_session
+from ..models import Channel, Message
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 async def add_message(
         message_id: int,
         message_datetime: datetime.datetime,
-        content: str,
+        text: str,
         channel_name: str
     ) -> None:
     """
@@ -39,7 +39,7 @@ async def add_message(
                 message = Message(
                     id=message_id,
                     datetime=message_datetime,
-                    content=content,
+                    text=text,
                     channel_name=channel_name
                 )
                 session.add(message)
