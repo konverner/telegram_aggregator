@@ -7,12 +7,14 @@ class MessageRequest(BaseModel):
     channels: List[str]
     n_messages: int
     keywords: Optional[List[str]] = None
+    get_media: Optional[bool] = False
 
 # Define the new Message schema
 class Message(BaseModel):
-    id: int
+    id: int  # Required for response validation
     datetime: datetime # Use datetime type
     channel_name: str
+    post_id: Optional[int] = None  # Duplicate of id, kept for compatibility
     text: Optional[str] = None
     photo: Optional[str] = None # Assuming image content is a URL/path or similar string representation
     caption: Optional[str] = None

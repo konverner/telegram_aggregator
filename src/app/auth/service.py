@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 from telethon import TelegramClient 
 from telethon.errors import SessionPasswordNeededError
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import Session
 
 from .auth_utils import create_access_token
 from .models import User

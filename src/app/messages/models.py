@@ -1,6 +1,7 @@
-from sqlalchemy import Column, DateTime, Integer, String, Text, ForeignKey
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text
 
 from ..models import Base, TimestampMixin
+
 
 class Channel(Base, TimestampMixin):
     __tablename__ = "channels"

@@ -1,9 +1,9 @@
 import asyncio
 import logging
 from datetime import timezone
+
 from telethon.tl.functions.messages import GetHistoryRequest
 from telethon.tl.types import PeerChannel
-
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 # --- Existing Message Fetching Functions ---
 
-async def fetch_last_n_messages(user_client, channel_name, n_messages: int = 10):
+async def fetch_last_n_messages(user_client, channel_name, n_messages: int = 10, get_media: bool = False):
     """
     Fetch the last n messages from a Telegram channel.
 
@@ -51,18 +51,18 @@ async def fetch_last_n_messages(user_client, channel_name, n_messages: int = 10)
         print(message)
         # Ensure message text is not None before processing
         message_text = message.message if message.message else ""
-        await user_client.download_media(message.media)
+        if get_media:
+            await user_client.download_media(message.media, f"media/{message.id}/{message.media}")
         message_data = {
-            "id": message.id,  # Changed from message_id
-            "datetime": message.date.astimezone(timezone.utc),  # Changed from message_datetime
-            "text": message_text,  # Use message_text
+            "id": message.id,  # Add this line for Pydantic validation
+            "post_id": message.id,  # Keep for compatibility
+            "datetime": message.date.astimezone(timezone.utc),
+            "text": message_text,
             "channel_name": channel_name,
-            # Add placeholders for other fields if needed, or handle optional fields
-            "photo": None,  # Assuming no photo handling for now
-            "caption": None  # Assuming no caption handling for now
+            "photo": None,
+            "caption": None
         }
-        data.append(message_data)  # Changed from extend([message_data])
-        # Removed add_message call
+        data.append(message_data)
     return data
 
 async def fetch_messages(channels: list[str], user_client, n_messages: int = 10):
